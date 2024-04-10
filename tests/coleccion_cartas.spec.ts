@@ -1,8 +1,8 @@
+import 'mocha';
 import { expect } from 'chai';
+
 import { Carta, TipoCarta, Color, Rareza } from '../src/magic/carta.js';
 import { ColeccionCartas, multicolorText } from '../src/magic/coleccion_cartas.js';
-
-import 'mocha';
 
 import fs from 'fs';
 import chalk from 'chalk';
@@ -17,14 +17,15 @@ describe('ColeccionCartas', () => {
     }
   });
 
-  it('should add a carta to user collection', () => {
+  it('should add a carta to user collection', (done) => {
     const carta = new Carta(1, 'Carta Ejemplo', 3, Color.Azul, TipoCarta.Instantáneo, Rareza.Rara, 'Reglas de ejemplo', 10);
     coleccion.addCarta('user1', carta, (_, resultado) => {
       expect(resultado).to.equal(`New card Carta Ejemplo added to user1 collection!`);
     });
+    done();
   });
 
-  it('should list cartas from user collection', () => {
+  it('should list cartas from user collection', (done) => {
     const carta1 = new Carta(1, 'Carta 1', 3, Color.Azul, TipoCarta.Instantáneo, Rareza.Rara, 'Reglas de ejemplo', 10);
     const carta2 = new Carta(2, 'Carta 2', 2, Color.Verde, TipoCarta.Criatura, Rareza.Común, 'Otras reglas', 5, 2, 3);
     coleccion.addCarta('user2', carta1, (error, _) => {
@@ -56,18 +57,20 @@ describe('ColeccionCartas', () => {
         expect(result).to.equal(expectedOutput);
       });
     });
+    done();
   });
 
-  it('should read a carta from user collection', () => {
+  it('should read a carta from user collection', (done) => {
     const carta = new Carta(1, 'Carta Ejemplo', 3, Color.Azul, TipoCarta.Instantáneo, Rareza.Rara, 'Reglas de ejemplo', 10);
     coleccion.addCarta('user3', carta, (error, _) => {
       const result = coleccion.readCarta('user3', 1);
       const expectedOutput = `ID: 1\nName: Carta Ejemplo\nCost: 3\nColor: ${chalk.blue('Azul')}\nType: Instantáneo\nRarity: Rara\nRules: Reglas de ejemplo\nValue: 10\n`;
       expect(result).to.equal(expectedOutput);
     });
+    done();
   });
 
-  it('should modify a carta in user collection', () => {
+  it('should modify a carta in user collection', (done) => {
     const carta = new Carta(1, 'Carta Ejemplo', 3, Color.Azul, TipoCarta.Instantáneo, Rareza.Rara, 'Reglas de ejemplo', 10);
     coleccion.addCarta('user4', carta, (error, _) => {
       const modifiedCarta = new Carta(1, 'Modified Carta', 2, Color.Verde, TipoCarta.Criatura, Rareza.Común, 'New rules', 8, 1, 1);
@@ -84,9 +87,10 @@ describe('ColeccionCartas', () => {
       expect(cartaFromFile._fuerza).to.equal(1);
       expect(cartaFromFile._resistencia).to.equal(1);
     });
+    done();
   });
 
-  it('should remove a carta from user collection', () => {
+  it('should remove a carta from user collection', (done) => {
     const carta = new Carta(1, 'Carta Ejemplo', 3, Color.Azul, TipoCarta.Instantáneo, Rareza.Rara, 'Reglas de ejemplo', 10);
     coleccion.addCarta('user5', carta, (error, _) => {
       coleccion.removeCarta('user5', 1, (_, resultado) => {
@@ -95,15 +99,17 @@ describe('ColeccionCartas', () => {
         expect(fileExists).to.be.false;
       });
     });
+    done();
   });
 
-  it('should throw error when adding existing carta', () => {
+  it('should throw error when adding existing carta', (done) => {
     const carta = new Carta(1, 'Carta Ejemplo', 3, Color.Azul, TipoCarta.Instantáneo, Rareza.Rara, 'Reglas de ejemplo', 10);
     coleccion.addCarta('user', carta, (error, _) => {
       coleccion.addCarta('user', carta, (error, _) => {
         expect(error).to.be.eql('Card with id 1 already exists in user collection!');
       });
     });
+    done();
   });
 
   it('should throw error when listing cartas from non-existent user collection', () => {
@@ -119,10 +125,11 @@ describe('ColeccionCartas', () => {
     expect(() => coleccion.modifyCarta('user', carta)).to.throw('Card with id 3 does not exist in user collection!');
   });
 
-  it('should throw error when removing non-existent carta', () => {
+  it('should throw error when removing non-existent carta', (done) => {
     coleccion.removeCarta('user', 999, (error, _) => {
       expect(error).to.be.eql('Card with id 999 does not exist in user collection!')
     })
+    done();
   });
 
   it('should throw error when attempting to list cartas from a non-existent user collection', () => {
@@ -130,12 +137,13 @@ describe('ColeccionCartas', () => {
     expect(() => coleccion.listCartas(user)).to.throw(`User ${user} has never added a card and does not exist!`);
   });
 
-  it('should throw an error if user folder does not exist when removing a card', () => {
+  it('should throw an error if user folder does not exist when removing a card', (done) => {
     const user = 'nonexistentUser';
     const id = 1;
     coleccion.removeCarta(user, id, (error, _) => {
       expect(error).to.be.eql(`User ${user} has never added a card and does not exist!`)
     });
+    done();
   });
 
   it('should throw an error if user folder does not exist when modifying a card', () => {
@@ -149,7 +157,7 @@ describe('ColeccionCartas', () => {
     expect(() => coleccion.readCarta(user, 1)).to.throw(`User ${user} has never added a card and does not exist!`);
   });
 
-  it('should list cartas from user collection with all colors', () => {
+  it('should list cartas from user collection with all colors', (done) => {
     coleccion.removeCarta('user', 1, (error, _) => {
       const carta1 = new Carta(1, 'Carta 1', 3, Color.Blanco, TipoCarta.Instantáneo, Rareza.Rara, 'Reglas de ejemplo', 10);
       const carta2 = new Carta(2, 'Carta 2', 2, Color.Azul, TipoCarta.Criatura, Rareza.Común, 'Otras reglas', 5, 2, 3);
@@ -248,5 +256,6 @@ describe('ColeccionCartas', () => {
         });
       });
     });
+    done();
   });
 });
